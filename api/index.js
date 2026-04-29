@@ -1,68 +1,49 @@
-export const config = { runtime: "edge" };
-
-const _0x512a = [
-  "0x540x410x520x470x450x540x5f0x440x4f0x4d0x410x490x4e", // TARGET_DOMAIN
-  "0x680x6f0x730x74",                                   // host
-  "0x780x2d0x760x650x720x630x650x6c0x2d",               // x-vercel-
-  "0x780x2d0x720x650x610x6c0x2d0x690x70",               // x-real-ip
-  "0x780x2d0x660x6f0x720x770x610x720x640x650x640x2d0x660x6f0x72", // x-forwarded-for
-  "0x6d0x610x6e0x750x610x6c",                           // manual
-  "0x420x610x640x200x470x610x740x650x770x610x79",       // Bad Gateway
-  "0x470x450x54", "0x480x450x410x44",                   // GET, HEAD
-  "0x4d0x690x730x730x690x6e0x670x200x540x410x520x470x450x540x5f0x440x4f0x4d0x410x490x4e", // Missing TARGET_DOMAIN
-  "0x490x6e0x760x610x6c0x690x640x200x550x520x4c0x200x430x6f0x6e0x660x690x67" // Invalid URL Config
-];
-
-const _0x1f3c = (_0x2a) => _0x512a[_0x2a].split('0x').slice(1).map(h => String.fromCharCode(parseInt(h, 16))).join('');
-
-export default async function (_0x4e2) {
-  let _0x3b1 = "4|1|6|0|3|2|5".split("|"), _0x5a2 = 0;
-  let _0x5e; 
+// Remove the 'edge' config to use the standard Node.js runtime
+export default async function handler(req, res) {
+  const TARGET = process.env.TARGET_DOMAIN; // e.g., https://vps.com:2096
   
-  while (!![]) {
-    switch (_0x3b1[_0x5a2++]) {
-      case "0":
-        const _0x1c = _0x4e2.method, _0x8d = _0x1c !== _0x1f3c(7) && _0x1c !== _0x1f3c(8);
-        const _0x9a = { method: _0x1c, headers: _0x2b, redirect: _0x1f3c(5), body: _0x8d ? _0x4e2.body : null };
-        try {
-          const _0xf3 = await fetch(_0x5e, _0x9a);
-          const _0x72 = new Headers(_0xf3.headers);
-          _0x72.delete("transfer-encoding");
-          return new Response(_0xf3.body, { status: _0xf3.status, headers: _0x72 });
-        } catch {
-          return new Response(_0x1f3c(6), { status: 502 });
-        }
-      case "1":
-        const _0x5d = process.env[_0x1f3c(0)] || "";
-        if (!_0x5d) return new Response(_0x1f3c(8), { status: 500 });
-        try {
-          const _0xbase = _0x5d.replace(/\/$/, "");
-          const _0xreqUrl = new URL(_0x4e2.url);
-          _0x5e = _0xbase + _0xreqUrl.pathname + _0xreqUrl.search;
-        } catch {
-          return new Response(_0x1f3c(9), { status: 500 });
-        }
-        continue;
-      case "2":
-        if (Math.sqrt(16) !== 4) { let _0xdead = "junk"; } 
-        continue;
-      case "3":
-        let _0xip = _0x4e2.headers.get(_0x1f3c(3)) || _0x4e2.headers.get(_0x1f3c(4));
-        if (_0xip) _0x2b.set(_0x1f3c(4), _0xip);
-        continue;
-      case "4":
-        var _0xstrip = [_0x1f3c(1), "connection", "upgrade", "te", "forwarded"];
-        continue;
-      case "5":
-        break;
-      case "6":
-        var _0x2b = new Headers();
-        _0x4e2.headers.forEach((_0xval, _0xkey) => {
-          if (_0xstrip.includes(_0xkey.toLowerCase()) || _0xkey.toLowerCase().startsWith(_0x1f3c(2))) return;
-          _0x2b.set(_0xkey, _0xval);
-        });
-        continue;
+  if (!TARGET) return res.status(500).send("Env Missing");
+
+  const targetUrl = new URL(req.url, TARGET);
+  targetUrl.host = new URL(TARGET).host;
+  targetUrl.protocol = new URL(TARGET).protocol;
+
+  try {
+    const response = await fetch(targetUrl.toString(), {
+      method: req.method,
+      headers: filterHeaders(req.headers),
+      body: req.method !== 'GET' && req.method !== 'HEAD' ? req : null,
+      duplex: 'half',
+      redirect: 'manual'
+    });
+
+    res.status(response.status);
+    response.headers.forEach((v, k) => {
+      if (k.toLowerCase() !== 'transfer-encoding') res.setHeader(k, v);
+    });
+
+    if (response.body) {
+      const reader = response.body.getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        res.write(value);
+      }
     }
-    break;
+    res.end();
+  } catch (e) {
+    console.error(e);
+    res.status(502).end("Relay Error");
   }
+}
+
+function filterHeaders(h) {
+  const out = {};
+  const skip = ['host', 'connection', 'upgrade', 'te'];
+  Object.keys(h).forEach(k => {
+    if (!skip.includes(k.toLowerCase()) && !k.startsWith('x-vercel')) {
+      out[k] = h[k];
+    }
+  });
+  return out;
 }
