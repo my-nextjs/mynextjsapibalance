@@ -2,7 +2,9 @@
   "version": 2,
   "name": "verc-api-balanc",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/api/index" }
-  ],
-  "trailingSlash": false
+    {
+      "source": "/xapiSecusreba1xllanC1er/:path*",
+      "destination": "https://YOUR_BACKEND_DOMAIN:2096/xapiSecusreba1xllanC1er/:path*"
+    }
+  ]
 }
