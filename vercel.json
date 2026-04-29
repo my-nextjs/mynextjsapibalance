@@ -3,8 +3,8 @@
   "name": "verc-api-balanc",
   "rewrites": [
     {
-      "source": "/xapiSecusreba1xllanC1er/:path*",
-      "destination": "https://api01v.djario.com:2096/xapiSecusreba1xllanC1er/:path*"
+      "source": "/apivdshxddwyucch/:path*",
+      "destination": "https://api01v.djario.com:2096/apivdshxddwyucch/:path*"
     }
   ]
 }
