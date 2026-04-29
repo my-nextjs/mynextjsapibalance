@@ -2,5 +2,6 @@
   "name": "verc-api-balanc",
   "version": "1.2.0",
   "private": true,
-  "description": "Edge-native"
+  "description": "Edge-native",
+  "type": "module"
 }
