@@ -1,6 +1,6 @@
-// Remove the 'edge' config to use the standard Node.js runtime
+
 export default async function handler(req, res) {
-  const TARGET = process.env.TARGET_DOMAIN; // e.g., https://vps.com:2096
+  const TARGET = process.env.TARGET_DOMAIN; 
   
   if (!TARGET) return res.status(500).send("Env Missing");
 
