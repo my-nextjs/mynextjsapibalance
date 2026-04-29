@@ -1,7 +1,8 @@
 {
   "name": "verc-api-balanc",
-  "version": "1.2.0",
-  "private": true,
-  "description": "Edge-native",
-  "type": "module"
+  "version": "1.3.0",
+  "type": "module",
+  "dependencies": {
+    "http-proxy-agent": "^7.0.0"
+  }
 }
