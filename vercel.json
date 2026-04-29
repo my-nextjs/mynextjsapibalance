@@ -1,10 +1,14 @@
 {
   "version": 2,
   "name": "verc-api-balanc",
-  "rewrites": [
-    {
-      "source": "/apivdshxddwyucch/:path*",
-      "destination": "https://api01v.djario.com:2096/apivdshxddwyucch/:path*"
+  "functions": {
+    "api/index.js": {
+      "memory": 128,
+      "maxDuration": 60
     }
-  ]
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index" }
+  ],
+  "trailingSlash": false
 }
